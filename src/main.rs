@@ -45,9 +45,9 @@ fn main() -> Result<(), Error> {
     set_clipboard_string("").expect("Clearing clipboard on first run");
 
     loop {
-        result = get_clipboard_string().unwrap_or(prev_result.clone());
+        result = get_clipboard_string().unwrap_or_default();
 
-        if result == prev_result || !validate_url(&result) {
+        if result.is_empty() || result == prev_result || !validate_url(&result) {
             sleep(WAIT_DURATION);
             continue;
         }
