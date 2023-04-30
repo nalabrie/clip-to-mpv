@@ -21,6 +21,6 @@ fn main() -> Result<(), Error> {
 
         prev_result = result.clone();
         println!("Now playing: {result}");
-        Command::new("mpv.exe").arg(result).output()?;
+        Command::new("mpv.exe").arg("--mute").arg(result).spawn()?;
     }
 }
