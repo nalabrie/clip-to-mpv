@@ -1,15 +1,26 @@
-use clipboard_win::{formats, get_clipboard};
 use std::io::Error;
 use std::process::Command;
+use std::thread::sleep;
+use std::time::Duration;
+
+use clipboard_win::{get_clipboard_string, set_clipboard_string};
 
 fn main() -> Result<(), Error> {
-    let result: String = get_clipboard(formats::Unicode).unwrap_or_default();
+    let mut result: String;
+    let mut prev_result = String::new();
+    let wait_duration = Duration::from_millis(250);
+    set_clipboard_string("").expect("Clearing clipboard on first run");
 
-    if result == String::default() {
-        return Err(Error::new(std::io::ErrorKind::Other, "Clipboard is empty"));
+    loop {
+        result = get_clipboard_string().unwrap_or(prev_result.clone());
+
+        if result == prev_result {
+            sleep(wait_duration);
+            continue;
+        }
+
+        prev_result = result.clone();
+        println!("Now playing: {result}");
+        Command::new("mpv.exe").arg(result).output()?;
     }
-
-    Command::new("mpv.exe").arg(result).output()?;
-
-    Ok(())
 }
