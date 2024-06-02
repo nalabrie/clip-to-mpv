@@ -1,6 +1,6 @@
 [package]
 name = "clip-to-mpv"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -9,4 +9,4 @@ edition = "2021"
 lto = true
 
 [dependencies]
-clipboard-win = "4.5.0"
+clipboard-win = "5.3.1"
