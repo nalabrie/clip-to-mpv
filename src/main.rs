@@ -1,10 +1,11 @@
 use std::io::Error;
 use std::process::{exit, Command};
+use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
 
 use arboard::Clipboard;
-// use ctrlc;
+use ctrlc;
 
 // === GLOBAL CONSTANTS ===
 
@@ -42,40 +43,53 @@ fn validate_url(url: &String) -> bool {
 // === MAIN ===
 
 fn main() -> Result<(), Error> {
-    // print app version
+    // print app welcome message
     let version = env!("CARGO_PKG_VERSION");
     println!("clip-to-mpv version {version}");
+    println!("Press Ctrl+C to exit\n");
 
     // init clipboard
-    let mut clipboard = Clipboard::new().expect("Error initializing clipboard");
+    let clipboard = Arc::new(Mutex::new(
+        Clipboard::new().expect("Error initializing clipboard"),
+    ));
+    // init clipboard clone for Ctrl+C handler
+    let clipboard_ctrlc_handler_clone = Arc::clone(&clipboard);
 
-    // set up Ctrl+C handler (code to execute when Ctrl+C is pressed)
-    // TODO: handle window close event
-    // ctrlc::set_handler(move || {
-    //     println!("Clearing clipboard and exiting...");
-    //     clipboard
-    //         .clear()
-    //         .expect("Error clearing clipboard before closing");
-    //     exit(0);
-    // })
-    // .expect("Error setting Ctrl-C handler");
+    // set up Ctrl+C handler
+    // TODO: handle window close event, not just Ctrl+C
+    ctrlc::set_handler(move || {
+        println!("\nClearing clipboard and exiting...");
+        let mut clipboard = clipboard_ctrlc_handler_clone.lock().unwrap();
+        clipboard
+            .clear()
+            .expect("Error clearing clipboard before closing");
+        exit(0);
+    })
+    .expect("Error setting Ctrl-C handler");
 
-    // initialize variables
+    // initialize variables for main loop
     let mut result: String;
     let mut prev_result = String::new();
 
     // clear clipboard on first run
-    print!("Clearing clipboard... ");
-    clipboard
-        .clear()
-        .expect("Error clearing clipboard on first run");
-    println!("done");
+    {
+        print!("Clearing clipboard before starting... ");
+        let mut clipboard = clipboard.lock().unwrap();
+        clipboard
+            .clear()
+            .expect("Error clearing clipboard on first run");
+        println!("done\n");
+    }
 
     // main loop
     loop {
-        result = clipboard.get_text().unwrap_or_default();
+        {
+            let mut clipboard = clipboard.lock().unwrap();
+            result = clipboard.get_text().unwrap_or_default();
+        }
 
         if result.is_empty() || result == prev_result || !validate_url(&result) {
+            // wait before next clipboard read to avoid high CPU usage
             sleep(WAIT_DURATION);
             continue;
         }

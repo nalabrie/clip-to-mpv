@@ -10,4 +10,4 @@ lto = true
 
 [dependencies]
 ctrlc = "3.4.4"
-arboard = "=3.4.0"
+arboard = "3.4.0"
