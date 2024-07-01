@@ -3,7 +3,7 @@ use std::process::{exit, Command};
 use std::thread::sleep;
 use std::time::Duration;
 
-use clipboard_win::{get_clipboard_string, set_clipboard_string};
+use clipboard_win::{get_clipboard_string, set_clipboard_string}; // TODO: add clipboard support for Linux and macOS
 use ctrlc;
 
 // === GLOBAL CONSTANTS ===
@@ -12,6 +12,7 @@ use ctrlc;
 const WAIT_DURATION: Duration = Duration::from_millis(250);
 
 // primitive "regex alternative" to cover most cases when validating URLs
+// TODO: improve URL validation
 const URL_VALIDATION_ARRAY: [&str; 17] = [
     "http", "www.", ".com", ".org", ".net", ".edu", ".gov", ".info", ".io", ".biz", ".pro", ".xzy",
     ".de", ".uk", ".top", ".cn", ".tk",
@@ -41,7 +42,12 @@ fn validate_url(url: &String) -> bool {
 // === MAIN ===
 
 fn main() -> Result<(), Error> {
+    // print app version
+    let version = env!("CARGO_PKG_VERSION");
+    println!("clip-to-mpv version {version}");
+
     // set up Ctrl+C handler (code to execute when Ctrl+C is pressed)
+    // TODO: handle window close event
     ctrlc::set_handler(move || {
         println!("Clearing clipboard and exiting...");
         set_clipboard_string("").expect("Error clearing clipboard before closing");
@@ -54,8 +60,9 @@ fn main() -> Result<(), Error> {
     let mut prev_result = String::new();
 
     // clear clipboard on first run
-    println!("Clearing clipboard...");
+    print!("Clearing clipboard... ");
     set_clipboard_string("").expect("Error clearing clipboard on first run");
+    println!("done");
 
     // main loop
     loop {
