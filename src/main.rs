@@ -20,7 +20,8 @@ const URL_VALIDATION_ARRAY: [&str; 17] = [
 ];
 
 // mpv command & args
-const MPV_COMMAND: &str = "mpv.exe"; // TODO: set this conditionally based on OS
+// TODO: check if mpv is installed before running
+const MPV_COMMAND: &str = if cfg!(windows) { "mpv.exe" } else { "mpv" };
 const MPV_ARG_MUTE: &str = "--mute";
 
 // === FUNCTIONS ===
