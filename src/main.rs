@@ -1,11 +1,12 @@
 use std::io::Error;
-use std::process::Command;
+use std::process::{exit, Command};
 use std::thread::sleep;
 use std::time::Duration;
 
 use clipboard_win::{get_clipboard_string, set_clipboard_string};
+use ctrlc;
 
-// ---- GLOBAL CONSTANTS ----
+// === GLOBAL CONSTANTS ===
 
 // how long to wait between clipboard reads
 const WAIT_DURATION: Duration = Duration::from_millis(250);
@@ -16,7 +17,7 @@ const URL_VALIDATION_ARRAY: [&str; 17] = [
     ".de", ".uk", ".top", ".cn", ".tk",
 ];
 
-// ---- FUNCTIONS ----
+// === FUNCTIONS ===
 
 /// Checks if a String is a valid URL. Returns `true` when valid.
 ///
@@ -37,13 +38,26 @@ fn validate_url(url: &String) -> bool {
     URL_VALIDATION_ARRAY.iter().any(|&s| url.contains(s))
 }
 
-// ---- MAIN ----
+// === MAIN ===
 
 fn main() -> Result<(), Error> {
+    // set up Ctrl+C handler (code to execute when Ctrl+C is pressed)
+    ctrlc::set_handler(move || {
+        println!("Clearing clipboard and exiting...");
+        set_clipboard_string("").expect("Error clearing clipboard before closing");
+        exit(0);
+    })
+    .expect("Error setting Ctrl-C handler");
+
+    // initialize variables
     let mut result: String;
     let mut prev_result = String::new();
-    set_clipboard_string("").expect("Clearing clipboard on first run");
 
+    // clear clipboard on first run
+    println!("Clearing clipboard...");
+    set_clipboard_string("").expect("Error clearing clipboard on first run");
+
+    // main loop
     loop {
         result = get_clipboard_string().unwrap_or_default();
 
@@ -58,7 +72,7 @@ fn main() -> Result<(), Error> {
             .arg("--mute")
             .arg(result)
             .spawn()
-            .expect("Launch mpv with clipboard URL");
+            .expect("Error launching mpv with URL argument from clipboard");
     }
 }
 // sample URL: https://youtu.be/9FLRHejWAo8
