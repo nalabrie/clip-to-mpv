@@ -19,6 +19,10 @@ const URL_VALIDATION_ARRAY: [&str; 17] = [
     ".de", ".uk", ".top", ".cn", ".tk",
 ];
 
+// mpv command & args
+const MPV_COMMAND: &str = "mpv.exe"; // TODO: set this conditionally based on OS
+const MPV_ARG_MUTE: &str = "--mute";
+
 // === FUNCTIONS ===
 
 /// Checks if a String is a valid URL. Returns `true` when valid.
@@ -96,8 +100,8 @@ fn main() -> Result<(), Error> {
 
         prev_result = result.clone();
         println!("Now playing: {result}");
-        Command::new("mpv.exe")
-            .arg("--mute")
+        Command::new(MPV_COMMAND)
+            .arg(MPV_ARG_MUTE)
             .arg(result)
             .spawn()
             .expect("Error launching mpv with URL argument from clipboard");
