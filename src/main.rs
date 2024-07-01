@@ -3,8 +3,8 @@ use std::process::{exit, Command};
 use std::thread::sleep;
 use std::time::Duration;
 
-use clipboard_win::{get_clipboard_string, set_clipboard_string}; // TODO: add clipboard support for Linux and macOS
-use ctrlc;
+use arboard::Clipboard;
+// use ctrlc;
 
 // === GLOBAL CONSTANTS ===
 
@@ -46,14 +46,19 @@ fn main() -> Result<(), Error> {
     let version = env!("CARGO_PKG_VERSION");
     println!("clip-to-mpv version {version}");
 
+    // init clipboard
+    let mut clipboard = Clipboard::new().expect("Error initializing clipboard");
+
     // set up Ctrl+C handler (code to execute when Ctrl+C is pressed)
     // TODO: handle window close event
-    ctrlc::set_handler(move || {
-        println!("Clearing clipboard and exiting...");
-        set_clipboard_string("").expect("Error clearing clipboard before closing");
-        exit(0);
-    })
-    .expect("Error setting Ctrl-C handler");
+    // ctrlc::set_handler(move || {
+    //     println!("Clearing clipboard and exiting...");
+    //     clipboard
+    //         .clear()
+    //         .expect("Error clearing clipboard before closing");
+    //     exit(0);
+    // })
+    // .expect("Error setting Ctrl-C handler");
 
     // initialize variables
     let mut result: String;
@@ -61,12 +66,14 @@ fn main() -> Result<(), Error> {
 
     // clear clipboard on first run
     print!("Clearing clipboard... ");
-    set_clipboard_string("").expect("Error clearing clipboard on first run");
+    clipboard
+        .clear()
+        .expect("Error clearing clipboard on first run");
     println!("done");
 
     // main loop
     loop {
-        result = get_clipboard_string().unwrap_or_default();
+        result = clipboard.get_text().unwrap_or_default();
 
         if result.is_empty() || result == prev_result || !validate_url(&result) {
             sleep(WAIT_DURATION);
