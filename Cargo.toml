@@ -1,12 +1,15 @@
 [package]
 name = "clip-to-mpv"
-version = "0.5.2"
+version = "0.5.3"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [profile.release]
 lto = true
+codegen-units = 1
+opt-level = 3
+strip = true
 
 [dependencies]
 ctrlc = "3.4.4"
