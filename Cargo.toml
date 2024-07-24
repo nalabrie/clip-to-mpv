@@ -1,6 +1,6 @@
 [package]
 name = "clip-to-mpv"
-version = "0.7.0"
+version = "0.7.1"
 edition = "2021"
 description = "A simple Rust CLI app to play URLs stored in the clipboard with mpv."
 license = "MIT"

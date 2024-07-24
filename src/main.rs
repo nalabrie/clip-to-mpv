@@ -10,7 +10,7 @@ use url::Url;
 use which::which;
 
 // TODO: make tests
-// TODO: proper logging, not just println
+// TODO: proper logging, not just println (2024-07-24 not adding yet, not enough code to justify it)
 // TODO: maybe add a config file and/or command line arguments?
 
 // === GLOBAL CONSTANTS ===
@@ -19,8 +19,8 @@ use which::which;
 const WAIT_DURATION: Duration = Duration::from_millis(250);
 
 // mpv command & default args
-const MPV_COMMAND: &str = if cfg!(windows) { "mpv.exe" } else { "mpv" };
-const MPV_ARG_MUTE: &str = "--mute";
+const MPV_COMMAND: &str = if cfg!(windows) { "mpv.exe" } else { "mpv" }; // plain "mpv" will launch mpv.com on Windows
+const MPV_ARGS: [&str; 1] = ["--mute"];
 
 // other external app commands
 const YT_DLP_COMMAND: &str = "yt-dlp";
@@ -57,10 +57,10 @@ fn check_for_external_apps() -> bool {
     let ffmpeg_exists = which(FFMPEG_COMMAND).is_ok();
 
     if !mpv_exists {
-        eprintln!("[Error]: mpv not found in PATH");
+        eprintln!("[Error]: mpv not found in PATH. For more information, see https://github.com/nalabrie/clip-to-mpv?tab=readme-ov-file#required");
     }
     if !yt_dlp_exists {
-        eprintln!("[Error]: yt-dlp not found in PATH");
+        eprintln!("[Error]: yt-dlp not found in PATH, for more information, see https://github.com/nalabrie/clip-to-mpv?tab=readme-ov-file#required");
     }
     if !ffmpeg_exists {
         println!("[Warning]: ffmpeg not found in PATH. ffmpeg is optional but recommended for better compatibility. Some videos may not play without it. For more information, see https://github.com/nalabrie/clip-to-mpv?tab=readme-ov-file#optional");
@@ -132,7 +132,7 @@ fn main() -> Result<(), Error> {
         prev_result = result.clone();
         println!("Now playing: {result}");
         Command::new(MPV_COMMAND)
-            .arg(MPV_ARG_MUTE)
+            .args(MPV_ARGS)
             .arg(result)
             .spawn()
             .expect("Error launching mpv with URL argument from clipboard");
