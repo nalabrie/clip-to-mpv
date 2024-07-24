@@ -2,6 +2,10 @@
 name = "clip-to-mpv"
 version = "0.6.0"
 edition = "2021"
+description = "A simple Rust CLI app to play URLs stored in the clipboard with mpv."
+license = "MIT"
+repository = "https://github.com/nalabrie/clip-to-mpv"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
