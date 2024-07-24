@@ -1,6 +1,6 @@
 [package]
 name = "clip-to-mpv"
-version = "0.5.3"
+version = "0.6.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -14,3 +14,4 @@ strip = true
 [dependencies]
 ctrlc = "3.4.4"
 arboard = "3.4.0"
+url = "2.5.2"

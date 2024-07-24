@@ -6,21 +6,17 @@ use std::time::Duration;
 
 use arboard::Clipboard;
 use ctrlc;
+use url::Url;
 
 // === GLOBAL CONSTANTS ===
 
 // how long to wait between clipboard reads
 const WAIT_DURATION: Duration = Duration::from_millis(250);
 
-// primitive "regex alternative" to cover most cases when validating URLs
-// TODO: improve URL validation
-const URL_VALIDATION_ARRAY: [&str; 17] = [
-    "http", "www.", ".com", ".org", ".net", ".edu", ".gov", ".info", ".io", ".biz", ".pro", ".xzy",
-    ".de", ".uk", ".top", ".cn", ".tk",
-];
-
 // mpv command & args
 // TODO: check if mpv is installed before running
+// TODO: check if yt-dlp is installed so mpv can play remote URLs
+// TODO: check if ffmpeg is installed in case a video needs to be combined with audio on the fly by yt-dlp
 const MPV_COMMAND: &str = if cfg!(windows) { "mpv.exe" } else { "mpv" };
 const MPV_ARG_MUTE: &str = "--mute";
 
@@ -42,7 +38,7 @@ const MPV_ARG_MUTE: &str = "--mute";
 ///  }
 /// ```
 fn validate_url(url: &String) -> bool {
-    URL_VALIDATION_ARRAY.iter().any(|&s| url.contains(s))
+    Url::parse(url).is_ok()
 }
 
 // === MAIN ===
