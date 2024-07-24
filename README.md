@@ -17,7 +17,7 @@ The following dependencies are **required** and must be in your `PATH`:
 
 The following dependencies are **optional** and must be in your `PATH`:
 
-- [ffmpeg](https://ffmpeg.org/) to convert URLs to a format that `mpv` can play. Most often used when the audio and video are separate streams.
+- [ffmpeg](https://ffmpeg.org/) to convert URLs to a format that `mpv` can play. Most often used when the audio and video are separate streams. In the case of YouTube videos, the highest quality audio and video streams are (often) downloaded separately and then merged by `ffmpeg` before being played by `mpv`. If `ffmpeg` is not installed, `mpv` will play a lower quality version of the video with the audio and video streams pre-merged. But some other websites may not work at all without `ffmpeg`. Your mileage may vary.
 
 ## Installation
 

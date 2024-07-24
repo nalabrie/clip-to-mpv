@@ -7,31 +7,31 @@ use std::time::Duration;
 use arboard::Clipboard;
 use ctrlc;
 use url::Url;
+use which::which;
+
+// TODO: make tests
+// TODO: proper logging, not just println
+// TODO: maybe add a config file and/or command line arguments?
 
 // === GLOBAL CONSTANTS ===
 
 // how long to wait between clipboard reads
 const WAIT_DURATION: Duration = Duration::from_millis(250);
 
-// mpv command & args
-// TODO: check if mpv is installed before running
-// TODO: check if yt-dlp is installed so mpv can play remote URLs
-// TODO: check if ffmpeg is installed in case a video needs to be combined with audio on the fly by yt-dlp
+// mpv command & default args
 const MPV_COMMAND: &str = if cfg!(windows) { "mpv.exe" } else { "mpv" };
 const MPV_ARG_MUTE: &str = "--mute";
 
+// other external app commands
+const YT_DLP_COMMAND: &str = "yt-dlp";
+const FFMPEG_COMMAND: &str = "ffmpeg";
+
 // === FUNCTIONS ===
 
-/// Checks if a String is a valid URL. Returns `true` when valid.
-///
+/// Checks if a String is a valid URL. Returns `true` when valid, `false` otherwise.
 /// # Arguments
-///
 /// * `url`: String reference of URL to be checked for a valid format.
-///
-/// returns: bool
-///
 /// # Examples
-///
 /// ```
 ///  if validate_url(my_url_string) {
 ///      /* code to execute when valid URL is found */
@@ -41,6 +41,34 @@ fn validate_url(url: &String) -> bool {
     Url::parse(url).is_ok()
 }
 
+/// Checks for the presence of external apps in the system PATH. Returns `true` when all **required** apps are found.
+/// Prints error messages for missing **required** apps. Prints a warning message for missing **optional** apps.
+///
+/// Returns `true` when all **required** apps are found, `false` otherwise.
+/// # Examples
+/// ```
+/// if check_for_external_apps() {
+///    /* code to execute when all apps are found */
+/// }
+/// ```
+fn check_for_external_apps() -> bool {
+    let mpv_exists = which(MPV_COMMAND).is_ok();
+    let yt_dlp_exists = which(YT_DLP_COMMAND).is_ok();
+    let ffmpeg_exists = which(FFMPEG_COMMAND).is_ok();
+
+    if !mpv_exists {
+        eprintln!("[Error]: mpv not found in PATH");
+    }
+    if !yt_dlp_exists {
+        eprintln!("[Error]: yt-dlp not found in PATH");
+    }
+    if !ffmpeg_exists {
+        println!("[Warning]: ffmpeg not found in PATH. ffmpeg is optional but recommended for better compatibility. Some videos may not play without it. For more information, see https://github.com/nalabrie/clip-to-mpv?tab=readme-ov-file#optional");
+    }
+
+    mpv_exists && yt_dlp_exists // ffmpeg is optional, so it's not included in the return value
+}
+
 // === MAIN ===
 
 fn main() -> Result<(), Error> {
@@ -48,6 +76,12 @@ fn main() -> Result<(), Error> {
     let version = env!("CARGO_PKG_VERSION");
     println!("clip-to-mpv version {version}");
     println!("Press Ctrl+C to exit\n");
+
+    // check for required external apps
+    if !check_for_external_apps() {
+        println!("Exiting...");
+        exit(1);
+    }
 
     // init clipboard
     let clipboard = Arc::new(Mutex::new(
