@@ -2,7 +2,7 @@
 
 ## Description
 
-A simple Rust CLI app to play URLs stored in the clipboard with mpv.
+A simple Rust CLI app to play URLs stored in the clipboard with mpv. Works and tested on Windows and Linux. Should work on macOS as well, but not yet tested.
 
 ## Dependencies
 
@@ -29,7 +29,9 @@ It will be available for installation via `cargo` once a stable version is relea
 
 1. Run `clip-to-mpv` in your terminal.
 2. Any URLs copied to your clipboard while the app is running will be played with `mpv` immediately.
+   - If the URL does not go to a page with media, `mpv` will simply not open and the app will continue to run.
 3. To stop the app, press `Ctrl+C` in the terminal.
+   - Closing the terminal will also stop the app, but your clipboard will not be cleared.
 
 ## Compilation
 
