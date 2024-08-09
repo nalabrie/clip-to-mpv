@@ -20,7 +20,7 @@ const WAIT_DURATION: Duration = Duration::from_millis(250);
 
 // mpv command & default args
 const MPV_COMMAND: &str = if cfg!(windows) { "mpv.exe" } else { "mpv" }; // plain "mpv" will launch mpv.com on Windows
-const MPV_ARGS: [&str; 1] = ["--mute"];
+const MPV_ARGS: [&str; 2] = ["--mute", "--ytdl-raw-options=force-ipv4="];
 
 // other external app commands
 const YT_DLP_COMMAND: &str = "yt-dlp";
